@@ -1,0 +1,24 @@
+[
+  {
+    "color": "#73b6ce",
+    "button_alignment": "horizontal",
+    "actions": [
+      {
+        "type": "button",
+        "text": "Мне нужна помощь",
+        "msg_in_chat_window": true,
+        "msg": "Мне нужна помощь"
+      },
+      {
+        "type": "button",
+        "text": "Я хочу просто поболтать",
+        "msg_in_chat_window": true,
+        "msg": "Я хочу просто поболтать"
+      }
+    ]
+  }
+]
+
+
+
+
