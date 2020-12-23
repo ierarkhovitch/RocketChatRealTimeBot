@@ -40,7 +40,7 @@ def send_text_message(room_id, text, attr=None) -> dict:
         'method': 'sendMessage',
         'id': uid,
         'params': [{
-            'id': mid,
+            '_id': mid,
             'rid': room_id,
             'msg': text,
             'attachments': attr
