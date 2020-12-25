@@ -29,7 +29,7 @@ def message_handler(username, message):
         elif msg in settings.GREETING:
             with open('files/greeting.json', encoding='utf-8') as file:
                 return settings.GREETING_ANSWER, json.load(file)
-        elif msg == 'мне нужна помощь':
+        elif any(help_trigger for help_trigger in settings.HELP_TRIGGER if help_trigger in msg):
             return '', need_help(username)
         elif '|' in message:
             return training_bot(username, message), None

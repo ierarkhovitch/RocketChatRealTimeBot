@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from pprint import pprint
 import websockets
 import datetime
 import asyncio
@@ -51,20 +50,22 @@ class WebSocket:
             database.insert_base_bot_log('bot_log', username, msg, data['msg'])
 
     async def consume(self):
-        try:
-            async with websockets.connect(self.url, ping_interval=0) as websocket:
-                await websocket.send(metods.connect())
-                await websocket.send(metods.login(settings.TOKEN))
-                await websocket.send(metods.sub_notify(settings.USER_ID))
-                await websocket.recv()
-                await self.consumer_handler(websocket)
-        except Exception as exc:
-            database.insert_base_bag_log('bag_log', exc)
-            print(datetime.datetime.now(), exc)
+        async with websockets.connect(self.url) as websocket:
+            await websocket.send(metods.connect())
+            await websocket.send(metods.login(settings.TOKEN))
+            await websocket.send(metods.sub_notify(settings.USER_ID))
+            await websocket.recv()
+            await self.consumer_handler(websocket)
 
 
 if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    websocket = WebSocket(settings.WSS_URL)
-    loop.run_until_complete(websocket.consume())
-    loop.run_forever()
+    while True:
+        try:
+            loop = asyncio.get_event_loop()
+            websocket = WebSocket(settings.WSS_URL)
+            loop.run_until_complete(websocket.consume())
+            loop.run_forever()
+        except Exception as exc:
+            database.insert_base_bag_log('bag_log', exc)
+            print(datetime.datetime.now(), exc)
+            continue

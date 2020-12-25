@@ -9,7 +9,6 @@ from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
 
-
 def create_table(table_name):
     """
     Создание таблицы
@@ -76,16 +75,9 @@ def search_for_a_dialogue(message):
     :return:
     """
     for _ in read_base_dialog():
-        # print(message)
         search = process.extractOne(message, list(_)[0].split('|'))
         if search[1] > 90:
-            # print(search)
-            # if fuzz.WRatio(message, search[0]) > 90:
-                # print(process.extractOne(message, list(_)[0].split('|')))
             return random.choice(_[1].split('|'))
-
-
-# print(search_for_a_dialogue("кто ты"))
 
 
 def search_user_status(user):
@@ -143,7 +135,7 @@ def insert_base_bag_log(table_name, exception):
     conn = sqlite3.connect("./dialog.db")
     cursor = conn.cursor()
     cursor.execute(f"INSERT INTO {table_name} (datetime, exception) "
-                   f"VALUES('{date}', '{exception}'")
+                   f"VALUES('{date}', '{exception}')")
     conn.commit()
     conn.close()
 
@@ -169,13 +161,3 @@ def insert_base_logging_training(table_name, trigger, answer, username):
                    f"VALUES('{trigger}', '{answer}', '{username}')")
     conn.commit()
     conn.close()
-
-
-# update_base_user_status('user_status', '123', 1, 1)
-
-# conn = sqlite3.connect("./dialog.db")
-# cursor = conn.cursor()
-# # cursor.execute("DELETE FROM logging_training WHERE trigger = 'а'")
-# cursor.execute("SELECT attachments FROM support WHERE scenario = 1 and step = 1;")
-# a = cursor.fetchall()[0][0]
-# print(json.loads(a))
