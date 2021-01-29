@@ -3,6 +3,7 @@
 import datetime
 import json
 import random
+import read_tsv
 
 import database
 import settings
@@ -10,6 +11,10 @@ from weather import parsers
 
 
 def filter_text(text):
+    """
+    Фильтрация сообщения
+    :param text: сообщение
+    """
     text = text.lower()
     text = [c for c in text if c in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя- ']
     text = ''.join(text)
@@ -18,35 +23,41 @@ def filter_text(text):
 
 def message_handler(username, message):
     """
-    :param username:
-    :param message:
+    Обработка сообщения
+    :param username: имя пользователя
+    :param message: сообщение
     :return: answer(txt), attachments(json)
     """
-    try:
-        msg = filter_text(message)
-        if not msg or msg == ' '*len(msg):
-            return random.choice(['Я не знаю что ответить...', 'не понимаю', 'что то не совсем понял']), None
-        elif msg in settings.GREETING:
-            with open('files/greeting.json', encoding='utf-8') as file:
-                return settings.GREETING_ANSWER, json.load(file)
-        elif any(help_trigger for help_trigger in settings.HELP_TRIGGER if help_trigger in msg):
-            return '', need_help(username)
-        elif '|' in message:
-            return training_bot(username, message), None
-        elif any(weather_trigger for weather_trigger in settings.WEATHER_TRIGGERS if weather_trigger in msg):
-            return f"Сейчас в Питере: {parsers.weather()}", None
-        elif 'курс' in msg:
-            return parsers.exchange_rates(), None
-        elif send_next_scenario(username, message):
-            return '', next_scenario(username, message)
-        elif database.search_for_a_dialogue(msg):
-            return database.search_for_a_dialogue(msg), None
+    msg = filter_text(message)
+    if not msg or msg == ' '*len(msg):
         return random.choice(['Я не знаю что ответить...', 'не понимаю', 'что то не совсем понял']), None
-    except Exception as exc:
-        print(datetime.datetime.now(), exc)
+    elif msg in settings.GREETING:
+        with open('files/greeting.json', encoding='utf-8') as file:
+            return settings.GREETING_ANSWER, json.load(file)
+    elif any(help_trigger for help_trigger in settings.HELP_TRIGGER if help_trigger in msg):
+        return '', need_help(username)
+    elif '|' in message:
+        return training_bot(username, message), None
+    elif any(weather_trigger for weather_trigger in settings.WEATHER_TRIGGERS if weather_trigger in msg):
+        return f"Сейчас в Питере: {parsers.weather()}", None
+    elif 'курс' in msg:
+        return parsers.exchange_rates(), None
+    elif next_scenario(username, message):
+        return '', display_next_scenario(username, message)
+    else:
+        return read_tsv.search_reply(msg), None
+    # else: database.search_for_a_dialogue(msg, 90):
+    #     return database.search_for_a_dialogue(msg, 90), None
+    # else:
+    #     return database.search_for_a_dialogue(msg, 85), None
+    #return random.choice(['Я не знаю что ответить...', 'не понимаю', 'что то не совсем понял']), None
 
 
 def create_user_status(username):
+    """
+    Заведение пользователя в базу данных
+    :param username: имя пользователя
+    """
     if not database.search_user_status(username):
         database.insert_base_user_status('user_status', username, 0, 0)
 
@@ -55,7 +66,7 @@ def training_bot(username, message):
     """
     Обучени бота (занесение триггеров и ответов в базу данных)
     :param username: имя пользователя
-    :param message: полное сообщение в формате json
+    :param message: сообщение
     """
     message = message.lower().split('|')
     if not database.search_message_dialog(message[0]):
@@ -67,11 +78,20 @@ def training_bot(username, message):
 
 
 def need_help(username):
+    """
+    Вхождение в набор кнопок
+    :param username: имя пользователя
+    """
     database.update_base_user_status('user_status', username, 0, 0)
     return json.loads(database.read_base_support(0, 0))
 
 
-def send_next_scenario(username, msg):
+def next_scenario(username, msg):
+    """
+    Проверка перехода в следующий шаг сценария
+    :param username: имя пользователя
+    :param msg: сообщение
+    """
     data = database.search_user_status(username)[0]
     base = json.loads(database.read_base_support(data[0], data[1]))
     for button in (base[0]['actions']):
@@ -81,7 +101,12 @@ def send_next_scenario(username, msg):
             return True
 
 
-def next_scenario(username, msg):
+def display_next_scenario(username, msg):
+    """
+    Вывод следующего сценария
+    :param username: имя пользователя
+    :param msg: сообщение
+    """
     data = database.search_user_status(username)[0]
     base = json.loads(database.read_base_support(data[0], data[1]))
     for button in (base[0]['actions']):
