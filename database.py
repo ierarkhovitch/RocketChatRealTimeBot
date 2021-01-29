@@ -68,21 +68,17 @@ def search_message_dialog(message):
     return message
 
 
-def search_for_a_dialogue(message, percent):
+def search_for_a_dialogue(message):
     """
     Расстояние левенштейна
     :param message:
     :return:
     """
-    data = dict()
     for _ in read_base_dialog():
         search = process.extractOne(message, list(_)[0].split('|'))
-        if search[1] >= percent:
-            data[search[1]] = _[1]
-    return random.choice(data[max(data)].split('|'))
-            # return random.choice(_[1].split('|'))
+        if search[1] > 90:
+            return random.choice(_[1].split('|'))
 
-# print(search_for_a_dialogue('ты его не знаешь', 90))
 
 def search_user_status(user):
     """
@@ -133,7 +129,7 @@ def insert_base_bot_log(table_name, user, send, get):
 
 def insert_base_bag_log(table_name, exception):
     """
-    Сохранение логов ошибок
+    Сохранение логов
     """
     date = str(datetime.datetime.now())[:-7]
     conn = sqlite3.connect("./dialog.db")
@@ -165,9 +161,3 @@ def insert_base_logging_training(table_name, trigger, answer, username):
                    f"VALUES('{trigger}', '{answer}', '{username}')")
     conn.commit()
     conn.close()
-
-# #
-# with open('normal.txt') as file:
-#     for string in file.readlines():
-#         ta = string[:-1].split("\t")
-#         insert_base_trigger_answer('trigger_answer', ta[0], ta[1])

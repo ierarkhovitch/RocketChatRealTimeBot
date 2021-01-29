@@ -4,30 +4,11 @@ import json
 from uuid import uuid4
 
 
-def uuid():
-    """
-    Создание уникального id
-    """
+def uuid() -> str:
     return uuid4().hex
 
 
-def connect():
-    """
-    Подтверждение установки соединения
-    """
-    msg = {
-        "msg": "connect",
-        "version": "1",
-        "support": ["1"]
-    }
-    return json.dumps(msg)
-
-
-def login(token):
-    """
-    Вход
-    :param token: Уникальный токен бота
-    """
+def login(token) -> dict:
     uid = uuid()
     msg = {
         "msg": "method",
@@ -42,13 +23,16 @@ def login(token):
     return json.dumps(msg)
 
 
-def send_text_message(room_id, text, attr=None):
-    """
-    Отправка сообщения
-    :param room_id: id комнаты
-    :param text: текст сообщения
-    :param attr: кнопки
-    """
+def connect() -> dict:
+    msg = {
+        "msg": "connect",
+        "version": "1",
+        "support": ["1"]
+    }
+    return json.dumps(msg)
+
+
+def send_text_message(room_id, text, attr=None) -> dict:
     uid = uuid()
     mid = uuid()
     msg = {
@@ -65,11 +49,7 @@ def send_text_message(room_id, text, attr=None):
     return json.dumps(msg)
 
 
-def sub_notify(user_id):
-    """
-    Подписка на нотификации пользователя
-    :param user_id: имя пользователя
-    """
+def sub_notify(user_id) -> dict:
     uid = uuid()
     user_notification = user_id + "/notification"
     msg = {
@@ -84,7 +64,7 @@ def sub_notify(user_id):
     return json.dumps(msg)
 
 
-def sub_otr(user_id):
+def sub_otr(user_id) -> dict:
     uid = uuid()
     user_notification = user_id + "/otr"
     msg = {
@@ -99,7 +79,7 @@ def sub_otr(user_id):
     return json.dumps(msg)
 
 
-def sub_webrtc(user_id):
+def sub_webrtc(user_id) -> dict:
     uid = uuid()
     user_notification = user_id + "/webrtc"
     msg = {
@@ -114,7 +94,7 @@ def sub_webrtc(user_id):
     return json.dumps(msg)
 
 
-def sub_subscriptions_changed(user_id):
+def sub_subscriptions_changed(user_id) -> dict:
     uid = uuid()
     user_notification = user_id + "/subscriptions-changed"
     msg = {
@@ -129,7 +109,7 @@ def sub_subscriptions_changed(user_id):
     return json.dumps(msg)
 
 
-def sub_room(room_id):
+def sub_room(room_id) -> dict:
     msg = {
         "msg": "sub",
         "id": "unique-id",
