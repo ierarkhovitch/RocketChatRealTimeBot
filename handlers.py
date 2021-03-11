@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import datetime
 import json
 import random
-import read_tsv
 
+import read_tsv
 import database
 import settings
 from weather import parsers
@@ -28,24 +27,24 @@ def message_handler(username, message):
     :param message: сообщение
     :return: answer(txt), attachments(json)
     """
-    msg = filter_text(message)
-    if not msg or msg == ' '*len(msg):
+    if not message or message == ' '*len(message):
         return random.choice(['Я не знаю что ответить...', 'не понимаю', 'что то не совсем понял']), None
-    elif msg in settings.GREETING:
+    elif message in settings.GREETING:
         with open('files/greeting.json', encoding='utf-8') as file:
             return settings.GREETING_ANSWER, json.load(file)
-    elif any(help_trigger for help_trigger in settings.HELP_TRIGGER if help_trigger in msg):
+    elif any(help_trigger for help_trigger in settings.HELP_TRIGGER if help_trigger in message):
         return '', need_help(username)
-    elif '|' in message:
-        return training_bot(username, message), None
-    elif any(weather_trigger for weather_trigger in settings.WEATHER_TRIGGERS if weather_trigger in msg):
-        return f"Сейчас в Питере: {parsers.weather()}", None
-    elif 'курс' in msg:
+    # elif '|' in message:
+    #     return training_bot(username, message), None
+    # elif any(weather_trigger for weather_trigger in settings.WEATHER_TRIGGERS if weather_trigger in message):
+    #     return f"Сейчас в Питере: {parsers.weather()}", None
+    elif 'курс' in message:
         return parsers.exchange_rates(), None
-    elif next_scenario(username, message):
-        return '', display_next_scenario(username, message)
+    elif next_scenario(username, message.capitalize()):
+        return '', display_next_scenario(username, message.capitalize())
     else:
-        return read_tsv.search_reply(msg), None
+        return read_tsv.search_reply(message), None
+
     # else: database.search_for_a_dialogue(msg, 90):
     #     return database.search_for_a_dialogue(msg, 90), None
     # else:

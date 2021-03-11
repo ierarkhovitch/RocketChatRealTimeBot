@@ -165,9 +165,3 @@ def insert_base_logging_training(table_name, trigger, answer, username):
                    f"VALUES('{trigger}', '{answer}', '{username}')")
     conn.commit()
     conn.close()
-
-# #
-# with open('normal.txt') as file:
-#     for string in file.readlines():
-#         ta = string[:-1].split("\t")
-#         insert_base_trigger_answer('trigger_answer', ta[0], ta[1])
