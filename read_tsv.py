@@ -33,7 +33,7 @@ class NeighborSampler(BaseEstimator):
 
 
 good = pd.read_csv('./files/good.tsv', encoding='windows-1251', sep='\t')
-svd = TruncatedSVD(n_components=150)
+svd = TruncatedSVD(n_components=200)
 ns = NeighborSampler()
 
 vectorizer = TfidfVectorizer()
