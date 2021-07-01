@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import pandas as pd
 import numpy as np
 from sklearn.pipeline import make_pipeline
@@ -32,7 +34,7 @@ class NeighborSampler(BaseEstimator):
         return self.y_[result]
 
 
-good = pd.read_csv('./files/good.tsv', encoding='windows-1251', sep='\t')
+good = pd.read_excel('./files/dialog.xlsx')
 svd = TruncatedSVD(n_components=200)
 ns = NeighborSampler()
 

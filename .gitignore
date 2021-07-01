@@ -219,3 +219,4 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
+/test_scenario_excel/scenario.xlsx
