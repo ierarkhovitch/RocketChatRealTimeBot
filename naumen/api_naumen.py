@@ -19,6 +19,8 @@ url = settings.URL_NAUMEN
 key = settings.NAUMEN_TOKEN
 
 find_attrs_team = {"title": "Технические специалисты спб"}
+find_attrs_service = {"massProblem": "True", "state": "registered"}
+find_attrs_service_ = {"massProblem": "True", "state": ["registered", "inprogress"]}
 
 
 def find_user(username, ticket):
@@ -51,27 +53,33 @@ def create_order(username, ticket):
         return "Не удалось создать заявку"
 
 
-# def find_team():
-#     request_find_team = f"{url}{find_team_method}{str(find_attrs_team)}?{key}"
-#     read_request_find_team = json.loads(requests.get(request_find_team, verify=False).text)
-#     return read_request_find_team
-#
-# print(find_team())
-# find_attrs_service = {"number": "149228"}
-
-
 def find_service():
     request_find_service = f"{url}{find_service_method}{str(find_attrs_service)}?{key}"
     read_request_find_user = json.loads(requests.get(request_find_service, verify=False).text)
     return read_request_find_user
 
 
-find_attrs_service = {"massProblem": "True", "state": "inprogress"}
-find_attrs_service_ = {"massProblem": "True", "state": "registered"}
+def find_user_tickets(username):
+    find_attrs_user = {"clientEmail": [f"{username}@ocs.ru", f"{username}@lenmix.com", f"{username}@lenmixclub.com"],
+                       "state": ["registered", "inprogress"]}
+    request_find_tickets = f"{url}{find_service_method}{str(find_attrs_user)}?{key}"
+    read_request_find_tickets = json.loads(requests.get(request_find_tickets, verify=False).text)
+    tickets = []
+    for ticket in read_request_find_tickets:
+        if ticket['state'] == "registered":
+            ticket_status = "Зарегистирована"
+        elif ticket['state'] == "inprogress":
+            ticket_status = "В работе"
+        tickets.append(f"Номер заявки: {ticket['number']}. Статус: {ticket_status}. "
+                       f"Ответсвенный: {ticket['cResponsiblle']}. Описание: {ticket['shortDescr']}")
+    return tickets
 
 
-def find_accidents():
-    request_find_service = f"{url}{find_service_method}{str(find_attrs_service)}?{key}"
+# find_user_tickets('vklimov')
+
+
+def find_accidents(username):
+    request_find_service = f"{url}{find_service_method}{str(find_attrs_service_)}?{key}"
     read_request_find_accidents = json.loads(requests.get(request_find_service, verify=False).text)
     accidents = []
     for ticket in read_request_find_accidents:
@@ -79,4 +87,5 @@ def find_accidents():
     return accidents
 
 
+# find_user_tickets()
 

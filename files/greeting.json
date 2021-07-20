@@ -1,7 +1,7 @@
 [
   {
     "color": "#73b6ce",
-    "button_alignment": "horizontal",
+    "button_alignment": "vertical",
     "actions": [
       {
         "type": "button",
@@ -11,9 +11,21 @@
       },
       {
         "type": "button",
-        "text": "Информация по авариям",
+        "text": "Об авариях",
         "msg_in_chat_window": true,
-        "msg": "Информация по авариям"
+        "msg": "Об авариях"
+      },
+      {
+        "type": "button",
+        "text": "Мои заявки",
+        "msg_in_chat_window": true,
+        "msg": "Мои заявки"
+      },
+      {
+        "type": "button",
+        "text": "Что я умею",
+        "msg_in_chat_window": true,
+        "msg": "Что я умею"
       }
     ]
   }

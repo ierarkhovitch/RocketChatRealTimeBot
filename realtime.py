@@ -52,7 +52,8 @@ class WebSocket:
                 username, rid, = message['sender']['username'], message['rid'],
                 # msg = filter_text(message['message']['msg'])
                 msg = message['message']['msg']
-                if any(create_ticket for create_ticket in settings.CREATE_TICKET if create_ticket in msg.lower()):
+                if msg.lower() == 'создать заявку':
+                #if any(create_ticket for create_ticket in settings.CREATE_TICKET if create_ticket in msg.lower()):
                     await create(username, ws, rid)
                 else:
                     await self.changed_handler(username, rid, msg, ws)
