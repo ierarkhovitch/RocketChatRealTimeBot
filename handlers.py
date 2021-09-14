@@ -2,13 +2,12 @@
 
 import json
 import random
-from pprint import pprint
 
 import read_tsv
 import settings
 from test_scenario_excel import scenario
 from weather import parsers
-from naumen.api_naumen import find_accidents, find_user_tickets
+from naumen.api_naumen import find_accidents, find_user_tickets, find_announcement
 
 
 def filter_text(text):
@@ -40,14 +39,12 @@ def message_handler(username, message):
         return return_ticket_info(find_accidents, username)
     elif message == "мои заявки":
         return return_ticket_info(find_user_tickets, username)
-    elif message == "что я умею":
+    elif message == "что умеет робби?":
         return settings.SKILLS, None
     elif message.capitalize() in scenario.init_buttons(path='./test_scenario_excel/scenario.xlsx'):
         return '', return_button(message)
-    # elif '|' in message:
-    #     return training_bot(username, message), None
-    # elif any(weather_trigger for weather_trigger in settings.WEATHER_TRIGGERS if weather_trigger in message):
-    #     return f"Сейчас в Питере: {parsers.weather()}", None
+    elif message == 'анонсы':
+        return find_announcement(), None
     elif 'курс' in message:
         return parsers.exchange_rates(), None
     else:
@@ -56,7 +53,12 @@ def message_handler(username, message):
 
 def return_ticket_info(search, username):
     answer = ''
-    for ticket in search(username):
+    tickets = search(username)
+    if len(tickets) == 0:
+        return "Действующих заявок не найдено", None
+    elif search == find_accidents:
+        answer += find_announcement()
+    for ticket in tickets:
         answer += f"{ticket}"
     return answer, None
 

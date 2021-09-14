@@ -4,6 +4,8 @@ from pprint import pprint
 import json
 import requests
 import urllib3
+import re
+
 
 import settings
 
@@ -30,7 +32,7 @@ def find_user(username, ticket):
         user_param = {"login": read_request_find_user[0]["login"],
                       "employee": read_request_find_user[0]["UUID"],
                       "ou": read_request_find_user[0]["parent"]["UUID"]}
-        pprint(user_param)
+        # pprint(user_param)
     else:
         print('Пользователь не найден')
         user_param = settings.ROCKET_USER
@@ -44,12 +46,13 @@ def find_user(username, ticket):
 def create_order(username, ticket):
     attributes = find_user(username, ticket)
     request_create_order = f"{url}{create_method}{str(attributes)}?{key}"
-    pprint(request_create_order)
+    # pprint(request_create_order)
     try:
         read_request_create_order = json.loads(requests.get(request_create_order, verify=False).text)
-        pprint(read_request_create_order)
+        # pprint(read_request_create_order)
         return f"Создана заявка №{read_request_create_order['number']}"
-    except:
+    except Exception as exc:
+        print(exc)
         return "Не удалось создать заявку"
 
 
@@ -60,9 +63,9 @@ def find_service():
 
 
 def find_user_tickets(username):
-    find_attrs_user = {"clientEmail": [f"{username}@ocs.ru", f"{username}@lenmix.com", f"{username}@lenmixclub.com"],
-                       "state": ["registered", "inprogress"]}
-    request_find_tickets = f"{url}{find_service_method}{str(find_attrs_user)}?{key}"
+    find_attrs_user = {"clientEmail": f"{username}@ocs.ru",
+                       "state": ["registered", "inprogress", "accepting"]}
+    request_find_tickets = f"{url}{find_service_call_method}{str(find_attrs_user)}?{key}"
     read_request_find_tickets = json.loads(requests.get(request_find_tickets, verify=False).text)
     tickets = []
     for ticket in read_request_find_tickets:
@@ -70,12 +73,17 @@ def find_user_tickets(username):
             ticket_status = "Зарегистирована"
         elif ticket['state'] == "inprogress":
             ticket_status = "В работе"
+        elif ticket['state'] == "accepting":
+            ticket_status = "На согласовании"
+        else:
+            ticket_status = "Активна"
         tickets.append(f"Номер заявки: {ticket['number']}. Статус: {ticket_status}. "
-                       f"Ответсвенный: {ticket['cResponsiblle']}. Описание: {ticket['shortDescr']}")
+                       f"Ответственный: {ticket['cResponsiblle']}. Описание: {ticket['shortDescr']}\n")
     return tickets
 
 
-# find_user_tickets('vklimov')
+# pprint(find_user_tickets())
+
 
 
 def find_accidents(username):
@@ -89,3 +97,9 @@ def find_accidents(username):
 
 # find_user_tickets()
 
+def find_announcement():
+    find_service_method_ = "find/catalogs$announcement/"
+    # find_attrs_service1 = {"metaClass": "catalogs$announcement"}
+    request_find_service = f"{url}{find_service_method_}?{key}"
+    read_request_find_user = json.loads(requests.get(request_find_service, verify=False).text)
+    return re.sub(r'(\<[^>]*>)|(&nbsp;)', '', read_request_find_user[0]['description']) + '\n'
