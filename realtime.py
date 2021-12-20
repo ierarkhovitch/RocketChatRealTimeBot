@@ -10,7 +10,6 @@ import json
 import database
 import handlers
 import metods
-import naumen.api_naumen as naumen
 from apps.rates import rates, rates_exchange
 from create_tiket.ticket import create
 

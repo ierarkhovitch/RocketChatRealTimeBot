@@ -6,7 +6,6 @@ import random
 import read_tsv
 import settings
 from test_scenario_excel import scenario
-from weather import parsers
 from naumen.api_naumen import find_accidents, find_user_tickets, find_announcement
 
 
@@ -43,10 +42,8 @@ def message_handler(username, message):
         return settings.SKILLS, None
     elif message.capitalize() in scenario.init_buttons(path='./test_scenario_excel/scenario.xlsx'):
         return '', return_button(message)
-    elif message == 'анонсы':
-        return find_announcement(), None
-    elif 'курс' in message:
-        return parsers.exchange_rates(), None
+    # elif message == 'анонсы':
+    #     return find_announcement(username), None
     else:
         return read_tsv.search_reply(message), None
 
@@ -56,8 +53,8 @@ def return_ticket_info(search, username):
     tickets = search(username)
     if len(tickets) == 0:
         return "Действующих заявок не найдено", None
-    elif search == find_accidents:
-        answer += find_announcement()
+    # elif search == find_accidents:
+    #     answer += find_announcement(username)
     for ticket in tickets:
         answer += f"{ticket}"
     return answer, None

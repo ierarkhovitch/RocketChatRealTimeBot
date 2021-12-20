@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from pprint import pprint
 import json
 import requests
 import urllib3
@@ -11,14 +10,16 @@ import settings
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-create_method = "create-m2m/serviceCall/"
-find_user_method = "find/employee/"
-find_team_method = "find/team/"
-find_service_call_method = "find/serviceCall/"
-find_service_method = "find/serviceCall$ocsservicecall/"
-
+domain = settings.DOMAIN
 url = settings.URL_NAUMEN
 key = settings.NAUMEN_TOKEN
+service_call_prefix = settings.SERVICE_CALL_PREFIX
+
+find_team_method = "find/team/"
+find_user_method = "find/employee/"
+create_method = "create-m2m/serviceCall/"
+find_service_call_method = "find/serviceCall/"
+find_service_method = f"find/serviceCall{service_call_prefix}/"
 
 find_attrs_team = {"title": "Технические специалисты спб"}
 find_attrs_service = {"massProblem": "True", "state": "registered"}
@@ -26,30 +27,28 @@ find_attrs_service_ = {"massProblem": "True", "state": ["registered", "inprogres
 
 
 def find_user(username, ticket):
-    request_find_user = f"{url}{find_user_method}%7Blogin:{username}@ocs.ru%7D?{key}"
+    request_find_user = f"{url}{find_user_method}%7Blogin:{username}@{domain}%7D?{key}"
     read_request_find_user = json.loads(requests.get(request_find_user, verify=False).text)
     if read_request_find_user:
         user_param = {"login": read_request_find_user[0]["login"],
                       "employee": read_request_find_user[0]["UUID"],
                       "ou": read_request_find_user[0]["parent"]["UUID"]}
-        # pprint(user_param)
     else:
         print('Пользователь не найден')
         user_param = settings.ROCKET_USER
     attributes = {"agreement": "agreement$4660001", "clientEmployee": user_param["employee"],
                   "clientOU": user_param["ou"], "descriptionRTF": ticket["text"],
-                  "metaClass": "serviceCall$ocsservicecall", "responsibleTeam": settings.SUPPORT_SPB_TEAM,
+                  "metaClass": f"serviceCall${service_call_prefix}", "responsibleTeam": settings.SUPPORT_SPB_TEAM,
                   "service": settings.SUPPORT_SPB_SERVICE, "shortDescr": ticket["theme"], "wayAddressing": "api"}
     return attributes
 
 
 def create_order(username, ticket):
-    attributes = find_user(username, ticket)
+    attributes = (find_user(username, ticket))
     request_create_order = f"{url}{create_method}{str(attributes)}?{key}"
-    # pprint(request_create_order)
+    # print(request_create_order)
     try:
-        read_request_create_order = json.loads(requests.get(request_create_order, verify=False).text)
-        # pprint(read_request_create_order)
+        read_request_create_order = json.loads(requests.post(request_create_order, verify=False).text)
         return f"Создана заявка №{read_request_create_order['number']}"
     except Exception as exc:
         print(exc)
@@ -63,7 +62,7 @@ def find_service():
 
 
 def find_user_tickets(username):
-    find_attrs_user = {"clientEmail": f"{username}@ocs.ru",
+    find_attrs_user = {"clientEmail": f"{username}@{domain}",
                        "state": ["registered", "inprogress", "accepting"]}
     request_find_tickets = f"{url}{find_service_call_method}{str(find_attrs_user)}?{key}"
     read_request_find_tickets = json.loads(requests.get(request_find_tickets, verify=False).text)
@@ -82,10 +81,6 @@ def find_user_tickets(username):
     return tickets
 
 
-# pprint(find_user_tickets())
-
-
-
 def find_accidents(username):
     request_find_service = f"{url}{find_service_method}{str(find_attrs_service_)}?{key}"
     read_request_find_accidents = json.loads(requests.get(request_find_service, verify=False).text)
@@ -95,9 +90,7 @@ def find_accidents(username):
     return accidents
 
 
-# find_user_tickets()
-
-def find_announcement():
+def find_announcement(username):
     find_service_method_ = "find/catalogs$announcement/"
     # find_attrs_service1 = {"metaClass": "catalogs$announcement"}
     request_find_service = f"{url}{find_service_method_}?{key}"
